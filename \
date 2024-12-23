@@ -45,14 +45,14 @@ fn day1part1(l1: &Vec<u32>, l2: &Vec<u32>) -> u32 {
     return total_length;
 }
 
-fn read_day2_data(data_location: &str) -> Vec<VecDeque<i32>> {
+fn read_day2_data(data_location: &str) -> Vec<VecDeque<u32>> {
     fs::read_to_string(data_location)
         .expect("Can't find the input file")
         .split("\n")
         .filter(|x| *x != "")
         .map(|x| {
             return x.split(" ")
-            .map(|y| y.parse::<i32>()
+            .map(|y| y.parse::<u32>()
                 .expect("Error while converting to int"))
             .collect::<VecDeque<_>>()
         }).collect::<Vec<_>>()
@@ -61,39 +61,22 @@ fn read_day2_data(data_location: &str) -> Vec<VecDeque<i32>> {
 fn day2part1() -> u32 {
     let data = read_day2_data("./inputs/day2input");
     let mut safe_data_count = 0;
-
-    for i in 0..data.len() {
-        let d = &data[i];
-        let mut is_descending = -1;
-        let mut is_current_safe = true;
-        for j in 1..d.len() {
-            let diff = d[j] - d[j - 1];
-            if diff < 0  && is_descending == -1{
-                is_descending = 1;
-            } else if diff > 0 && is_descending == -1 {
-                is_descending = 0;
-            }
-
-            if (is_descending == 1 && diff > 0) || (is_descending == 0 && diff < 0) {
-                is_current_safe = false;
-                break;
-            } 
-
-            if diff == 0{
-                is_current_safe = false;
-                break;
-            }
-
-            if (diff <= -4 || diff == 0) && is_descending == 1 {
-                is_current_safe = false;
-                break;
-            } else if (diff >= 4 || diff == 0) && is_descending == 0 {
-                is_current_safe = false;
-                break;
+    for mut dat in data {
+        let mut descending = false;
+        let mut current_indicator = 1;
+        while let Some(x) = dat.pop_front() {
+            if let Some(y) = dat.pop_front() {
+                let diff = y - x;
+                if diff < 0 {
+                    descending = true;
+                }
+                if descending == true && diff < -4 || diff == 0 {
+                    current_indicator = 0;
+                }
             }
         }
-
-        if is_current_safe {
+        
+        if current_indicator == 1 {
             safe_data_count += 1;
         }
     }
